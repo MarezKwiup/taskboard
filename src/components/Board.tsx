@@ -1,15 +1,16 @@
 import { useBoard } from "../context/BoardContext";
 import ColumnCard from "./Column";
 
+
 const Board=()=>{
     const {boardData}=useBoard();
-    console.log("Board columns are : ",boardData.columns)
     return(
-       <div>
+       <div className="p-5">
         <div className="flex overflow-x-auto h-full p-4 gap-4">
             {
-                Object.values(boardData.columns).map((column)=>(
-                    <ColumnCard column={column}/>
+                Object.values(boardData.columns).map((column,index)=>(
+    
+                    <ColumnCard column={column} index={index}/>
                 ))
             }
         </div>
