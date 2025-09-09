@@ -4,13 +4,16 @@ import viteLogo from '/vite.svg'
 import { initialData } from './data/mockData'
 import './App.css'
 import Header from './components/Header'
+import { useBoard } from './context/BoardContext'
+import Board from './components/Board'
 
 function App(){
-  console.log("First tasks is : ",initialData.tasks['task-1']);
+  const {boardData}=useBoard();
+  console.log("First tasks is : ",boardData.tasks['task-1']);
   return (
     <div className='bg-[#FBFBFC] h-screen w-screen'> 
       <Header/>
-      <h1 className='text-amber-300'>My taskboard</h1>
+      <Board/>
     </div>
   )
 }
