@@ -10,6 +10,7 @@ type BoardContextType = {
     addColumn:(column:Column)=>void;
     updateColumn:(columnId:string,updatedColumn:Partial<Column>)=>void;
     rearrangeColumns:(newOrder:string[])=>void;
+    deleteColumn:(columnId:string)=>void;
 }
 
 const BoardContext=createContext<BoardContextType|undefined>(undefined);
@@ -112,9 +113,33 @@ export const BoardProvider:React.FC<{children:React.ReactNode}>=({children})=>{
         }))
     }
 
+    const deleteColumn=(columnId:string)=>{
+        setBoardData((prev)=>{
+            const col=prev.columns[columnId];
+
+            const deletedTasks=col.taskIds;
+            const newTasks=Object.fromEntries(Object.entries(prev.tasks).filter((task)=>{
+                return !deletedTasks.includes(task[1].id)
+            }))
+
+            const newCols=Object.fromEntries(Object.entries(prev.columns).filter((col)=>{
+                return col[0]!==columnId
+            }))
+
+            const newOrder=prev.columnOrder.filter(colId=>colId!=columnId);
+
+            return {
+                ...prev,
+                tasks:newTasks,
+                columns:newCols,
+                columnOrder:newOrder
+            }
+        })
+    }
+
     return (
         <BoardContext.Provider
-value={{ boardData, online, addTask, updateTask, deleteTask, addColumn, updateColumn, rearrangeColumns }}
+value={{ boardData, online, addTask, updateTask, deleteTask, addColumn, updateColumn, rearrangeColumns,deleteColumn }}
         >
             {children}
         </BoardContext.Provider>
