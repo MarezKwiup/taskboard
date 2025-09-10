@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useBoard } from "../context/BoardContext";
+import { type Task } from "../types/board";
 interface TaskProps {
   taskId: string;
 }
@@ -12,7 +13,7 @@ interface EditState {
 import { RxPencil1 } from "react-icons/rx";
 import { MdDelete } from "react-icons/md";
 const TaskCard = (props: TaskProps) => {
-  const { boardData, deleteTask } = useBoard();
+  const { boardData, deleteTask, updateTask } = useBoard();
   const [showButtons, setShowButtons] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editState, setEditState] = useState<EditState>({
@@ -20,8 +21,23 @@ const TaskCard = (props: TaskProps) => {
     description: "",
   });
 
-  const handleEditSubmit = () => {
-    console.log("Here inside handle edit submit!!!");
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editState.title.trim()) {
+      let partialTask: Partial<Task> = editState.description?.trim()
+        ? {
+            title: editState.title,
+            description: editState.description,
+          }
+        : {
+            title: editState.title,
+          };
+      updateTask(props.taskId, partialTask);
+      setEditState({
+        title: "",
+      });
+      setIsEditing(false);
+    }
   };
 
   const task = boardData.tasks[props.taskId];
@@ -66,7 +82,7 @@ const TaskCard = (props: TaskProps) => {
         type="text"
         placeholder="Task title..."
         value={editState.title}
-        className="flex justify-center items-center border border-[#DCDCE5] w-[90%] h-10 m-3 p-2 rounded-lg bg-[#F7F7F8]"
+        className="flex justify-center items-center border border-[#DCDCE5] w-[90%] h-10 m-3 p-2 rounded-lg bg-[#F7F7F8] focus:border-[#6043EF] focus:outline-none focus:border-2"
         onChange={(e) =>
           setEditState((prev) => {
             return {
@@ -77,10 +93,9 @@ const TaskCard = (props: TaskProps) => {
         }
       />
 
-      <input
-        type="text"
+      <textarea
         placeholder="Task description (optional)..."
-        className="border border-[#DCDCE5] w-[90%] h-30 p-2 rounded-lg bg-[#F7F7F8] text-left"
+        className="border border-[#DCDCE5] w-[90%] h-30 p-2 rounded-lg bg-[#F7F7F8] text-left focus:border-[#6043EF] focus:outline-none focus:border-2"
         value={editState.description}
         onChange={(e) =>
           setEditState((prev) => {
@@ -91,11 +106,21 @@ const TaskCard = (props: TaskProps) => {
           })
         }
       />
-
-      <button type="submit">Save</button>
-      <button type="button" onClick={() => setIsEditing(false)}>
-        Cancel
-      </button>
+      <div className="flex m-3 h-10 w-[90%]">
+        <button
+          type="submit"
+          className="flex-1 py-2 border-0 rounded-lg bg-[#6043EF] text-white hover:bg-[#6d53f0]"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="flex-1 py-2 ml-2 bg-[#F7F7F8] border border-[#DCDCE5] rounded-lg hover:bg-[#e2e2e6] hover:text-[#6043EF]"
+          onClick={() => setIsEditing(false)}
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 };

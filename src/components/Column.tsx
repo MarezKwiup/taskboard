@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useBoard } from "../context/BoardContext";
 import { v4 as uuidv4 } from "uuid";
 import { type Task } from "../types/board";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 interface ColumnProps {
   column: Column;
@@ -18,6 +19,7 @@ const ColumnCard = (props: ColumnProps) => {
   const {addTask}=useBoard();
   const [addTaskBtn, setAddTaskBtn] = useState(false);
   const [title, setTitle] = useState<string>("");
+  const [editModal,setEditModal]=useState(false);
 
   const handleAddTask = () => {
     setAddTaskBtn((prev) => !prev);
@@ -44,17 +46,20 @@ const ColumnCard = (props: ColumnProps) => {
     <div
       className={`border ${colorClasses[index % colorClasses.length]} border-l-5 border-y-[#DCDCE5] border-r-[#DCDCE5] rounded-2xl p-4 flex flex-col w-[25%] bg-[#FFFFFF]`}
     >
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <div className="flex items-center">
           <span className="font-semibold text-xl">{column.title}</span>
           <p className="text-sm ml-2 border-0 rounded-full bg-[#d7d7dc] w-5 h-5">
             {column.taskIds.length}
           </p>
         </div>
-        <div>
-          <span>CSB</span>
-        </div>
+        <button className="border-0 rounded-md hover:bg-[#EDEBFF]" onClick={()=>setEditModal(true)}>
+            <BsThreeDotsVertical size={20} className="m-2" />
+        </button>
       </div>
+      {editModal&&(
+        <p>Edit modal is being shown .... </p>
+      )}
       <div>
         <ul>
           {column.taskIds.map((taskId) => (
