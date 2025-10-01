@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useBoard } from "../context/BoardContext";
 import { type Task } from "../types/board";
+import { useSortable } from "@dnd-kit/sortable";
+import {CSS} from '@dnd-kit/utilities'
 interface TaskProps {
   taskId: string;
 }
@@ -20,6 +22,14 @@ const TaskCard = (props: TaskProps) => {
     title: "",
     description: "",
   });
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: props.taskId });
+
+  const style={
+    transform:CSS.Transform.toString(transform),
+    transition
+  }
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +53,10 @@ const TaskCard = (props: TaskProps) => {
   const task = boardData.tasks[props.taskId];
   return !isEditing ? (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       className="flex flex-col border border-[#DCDCE5] m-3 p-3 rounded-xl text-left transition transform hover:-translate-y-1 hover:shadow-md"
       onMouseEnter={() => setShowButtons(true)}
       onMouseLeave={() => setShowButtons(false)}

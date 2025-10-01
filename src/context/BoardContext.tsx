@@ -1,9 +1,11 @@
 import React, {useState,useEffect,useContext,createContext} from 'react';
 import { type BoardData,type Task,type Column } from '../types/board';
 import { initialData } from '../data/mockData';
+import { type SetStateAction,type Dispatch } from 'react';
 type BoardContextType = {
     boardData:BoardData;
     online:boolean;
+    setBoardData:Dispatch<SetStateAction<BoardData>>;
     addTask: (columnId:string,task:Task)=>void;
     updateTask:(taskId:string,updatedTask:Partial<Task>)=>void;
     deleteTask:(taskId:string)=>void;
@@ -139,7 +141,7 @@ export const BoardProvider:React.FC<{children:React.ReactNode}>=({children})=>{
 
     return (
         <BoardContext.Provider
-value={{ boardData, online, addTask, updateTask, deleteTask, addColumn, updateColumn, rearrangeColumns,deleteColumn }}
+value={{ boardData, online,setBoardData, addTask, updateTask, deleteTask, addColumn, updateColumn, rearrangeColumns,deleteColumn }}
         >
             {children}
         </BoardContext.Provider>

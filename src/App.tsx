@@ -1,14 +1,14 @@
-import './App.css'
-import Header from './components/Header'
-import Board from './components/Board'
+import "./App.css";
+import Header from "./components/Header";
+import Board from "./components/Board";
 
-function App(){
+function App() {
   return (
-    <div className='bg-[#FBFBFC] h-screen w-screen'> 
-      <Header/>
-      <Board/>
+    <div className="bg-[#FBFBFC] h-screen w-screen">
+      <Header />
+      <Board />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
