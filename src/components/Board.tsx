@@ -127,11 +127,6 @@ const Board = () => {
   }
 
   function customCollisionDetection(args:any){
-    const pointerCollisions=pointerWithin(args);
-
-    if(pointerCollisions.length>0){
-        return pointerCollisions;
-    }
 
     const rectCollision=rectIntersection(args);
 

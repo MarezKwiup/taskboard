@@ -34,7 +34,6 @@ export const BoardProvider:React.FC<{children:React.ReactNode}>=({children})=>{
         }
     },[]);
 
-    //Task methods
     const addTask=(columnId:string,task:Task)=>{
         setBoardData((prev)=>{
             const newTasks={
