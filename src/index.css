@@ -3,3 +3,7 @@
 #root {
   @apply w-full h-full p-0 m-0;
 }
+
+.dnd-kit-overlay {
+  z-index:9999 !important;
+}

@@ -6,14 +6,13 @@ import {
   DragOverlay,
   closestCorners,
   PointerSensor,
+  rectIntersection,
   useSensor,
   useSensors,
+  pointerWithin,
 } from "@dnd-kit/core";
 import TaskCard from "./Task";
-import type {
-  DragStartEvent,
-  DragEndEvent,
-} from "@dnd-kit/core";
+import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -44,8 +43,14 @@ const Board = () => {
     const activeId = active.id as string;
     const overId = over.id as string;
 
+    console.log("Active id is : ",activeId);
+    console.log("Over id is : ",overId);
+
     const activeContainer = findContainer(activeId);
     const overContainer = findContainer(overId);
+
+    console.log("Active container is. : ",activeContainer);
+    console.log("over container is : ",overContainer);
 
     if (!activeContainer || !overContainer) {
       setActiveId(null);
@@ -54,7 +59,10 @@ const Board = () => {
 
     // If moving within the same column
     if (activeContainer === overContainer) {
+        console.log("Moving within the same column!!");
       const column = boardData.columns[activeContainer];
+
+      console.log("Column is : ",column);
       const oldIndex = column.taskIds.indexOf(activeId);
       const newIndex = column.taskIds.indexOf(overId);
 
@@ -72,18 +80,32 @@ const Board = () => {
       }
     } else {
       // Moving to a different column
+      console.log("Moving within different columns ! ");
       setBoardData((prev) => {
         const fromColumn = prev.columns[activeContainer];
         const toColumn = prev.columns[overContainer];
 
-        const newFromTasks = fromColumn.taskIds.filter((id) => id !== activeId);
-        const overIndex = toColumn.taskIds.indexOf(overId);
-        const newToTasks = [
-          ...toColumn.taskIds.slice(0, overIndex + 1),
-          activeId,
-          ...toColumn.taskIds.slice(overIndex + 1),
-        ];
+        console.log("From column is : ",fromColumn.title);
+        console.log("To column is : ",toColumn.title);
 
+        const newFromTasks = fromColumn.taskIds.filter((id) => id !== activeId);
+        let newToTasks;
+
+        if (overId in boardData.columns) {
+            console.log("To column is empty currently!! ");
+            newToTasks=[...toColumn.taskIds,activeId];
+        } else {
+             console.log("To column is not empty!");
+          const overIndex = toColumn.taskIds.indexOf(overId);
+          newToTasks = [
+            ...toColumn.taskIds.slice(0, overIndex + 1),
+            activeId,
+            ...toColumn.taskIds.slice(overIndex + 1),
+          ];
+        }
+
+        console.log("New from tasks are : ",newFromTasks);
+        console.log("New to tasks are : ",newToTasks);
         return {
           ...prev,
           columns: {
@@ -104,11 +126,27 @@ const Board = () => {
     setActiveId(null);
   }
 
+  function customCollisionDetection(args:any){
+    const pointerCollisions=pointerWithin(args);
+
+    if(pointerCollisions.length>0){
+        return pointerCollisions;
+    }
+
+    const rectCollision=rectIntersection(args);
+
+    if(rectCollision.length>0){
+        return rectCollision;
+    }
+
+    return closestCorners(args);
+  }
+
   return (
     <div className="p-5">
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd} // ✅ only update state here
       >
@@ -117,7 +155,7 @@ const Board = () => {
             <ColumnCard key={column.id} column={column} index={index} />
           ))}
         </div>
-        <DragOverlay>
+        <DragOverlay className="dnd-kit-overlay">
           {activeId ? <TaskCard taskId={activeId} /> : null}
         </DragOverlay>
       </DndContext>
