@@ -1,17 +1,15 @@
 import { type Column } from "../types/board";
 import TaskCard from "./Task";
 import { useState, useRef, useEffect } from "react";
-import { useBoard } from "../context/BoardContext";
-import { v4 as uuidv4 } from "uuid";
-import { type Task } from "../types/board";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { RxPencil1 } from "react-icons/rx";
-import { MdDelete } from "react-icons/md";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import EditColumn from "./EditColumn";
+import AddTask from "./AddTask";
+import ECN from "./EditColumnName";
 
 interface ColumnProps {
   column: Column;
@@ -33,7 +31,6 @@ const colorClasses = [
 
 const ColumnCard = (props: ColumnProps) => {
   const { column, index } = props;
-  const { addTask, deleteColumn, updateColumn } = useBoard();
   const [addTaskBtn, setAddTaskBtn] = useState(false);
   const [title, setTitle] = useState<string>("");
   const [editModal, setEditModal] = useState(false);
@@ -65,33 +62,14 @@ const ColumnCard = (props: ColumnProps) => {
     setAddTaskBtn((prev) => !prev);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (title.trim()) {
-      console.log("New task:", title, "for column:", column.id);
-      // later: call board context's addTask(column.id, title)
-      const newTask: Task = {
-        id: `task-${uuidv4()}`,
-        title: title,
-        updatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      };
-
-      addTask(column.id, newTask);
-      setTitle("");
-      setAddTaskBtn(false);
-    }
-  };
-
-  const handleEditModalClick = () => {
-    setIsEditing(true);
-    setEditModal(false);
-  };
-
   return (
-    <SortableContext id={column.id} items={column.taskIds} strategy={verticalListSortingStrategy}>
+    <SortableContext
+      id={column.id}
+      items={column.taskIds}
+      strategy={verticalListSortingStrategy}
+    >
       <div
-      ref={setNodeRef}
+        ref={setNodeRef}
         className={`border ${
           colorClasses[index % colorClasses.length]
         } border-l-5 border-y-[#DCDCE5] border-r-[#DCDCE5] rounded-2xl p-4 flex flex-col w-[25%] bg-[#FFFFFF]`}
@@ -105,31 +83,11 @@ const ColumnCard = (props: ColumnProps) => {
               </p>
             </div>
           ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                console.log("Submitted:", e.currentTarget.message.value);
-                const partialColumn: Partial<Column> = {
-                  title: e.currentTarget.message.value,
-                };
-                updateColumn(column.id, partialColumn);
-                setIsEditing(false);
-                setEditModal(false);
-              }}
-            >
-              <input
-                name="message"
-                type="text"
-                placeholder="Type something..."
-                className="border rounded-lg p-2 w-full border-[#DCDCE5] focus:border-[#6043EF] focus:outline-none focus:border-2 "
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault(); // Prevents newline
-                    e.currentTarget.form?.requestSubmit(); // Triggers form submit
-                  }
-                }}
-              />
-            </form>
+            <ECN
+              setIsEditing={setIsEditing}
+              setEditModal={setEditModal}
+              column={column}
+            />
           )}
           <button
             className="border-0 rounded-md hover:bg-[#EDEBFF]"
@@ -144,28 +102,12 @@ const ColumnCard = (props: ColumnProps) => {
           </button>
         </div>
         {editModal && (
-          <div
-            ref={modalRef}
-            className="flex flex-col justify-center items-center h-20"
-          >
-            <button
-              className="flex justify-center items-center hover:bg-[#EDEBFF] border-0 rounded-md w-[100%] mt-2 h-[50%]"
-              onClick={handleEditModalClick}
-            >
-              <RxPencil1 size={20} />
-              <p className="ml-2">Edit Column Title</p>
-            </button>
-            <button
-              className="flex justify-center items-center hover:bg-[#EDEBFF] border-0 rounded-md w-[100%] mt-2 h-[50%]"
-              onClick={() => {
-                deleteColumn(column.id);
-                setEditModal(false);
-              }}
-            >
-              <MdDelete size={20} color="#de432f" />
-              <p className="ml-2 text-[#de432f]">Delete Column</p>
-            </button>
-          </div>
+          <EditColumn
+            column={column}
+            modalRef={modalRef}
+            setIsEditing={setIsEditing}
+            setEditModal={setEditModal}
+          />
         )}
         <div>
           <ul>
@@ -185,30 +127,12 @@ const ColumnCard = (props: ColumnProps) => {
               + Add a task
             </button>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Task Title"
-                className="bg-[#F7F7F8] border border-[#DCDCE5] rounded-lg p-2 focus:border-[#6043EF] focus:outline-none focus:border-2"
-              />
-              <div className="flex m-3 h-10">
-                <button
-                  type="submit"
-                  className="border-0 rounded-lg bg-[#6043EF] text-white w-[70%] hover:bg-[#6d53f0]"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  className="ml-2 bg-[#F7F7F8] w-[30%] border border-[#DCDCE5] rounded-lg hover:bg-[#e2e2e6] hover:text-[#6043EF]"
-                  onClick={handleAddTask}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            <AddTask
+              title={title}
+              setTitle={setTitle}
+              column={column}
+              setAddTaskBtn={setAddTaskBtn}
+            />
           )}
         </div>
       </div>

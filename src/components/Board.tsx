@@ -59,7 +59,7 @@ const Board = () => {
 
     // If moving within the same column
     if (activeContainer === overContainer) {
-        console.log("Moving within the same column!!");
+    console.log("Moving within the same column!!");
       const column = boardData.columns[activeContainer];
 
       console.log("Column is : ",column);
@@ -143,7 +143,7 @@ const Board = () => {
         sensors={sensors}
         collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd} // ✅ only update state here
+        onDragEnd={handleDragEnd}
       >
         <div className="flex overflow-x-auto h-full p-4 gap-4">
           {Object.values(boardData.columns).map((column, index) => (
