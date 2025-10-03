@@ -1,6 +1,7 @@
 import React, {useState,useEffect,useContext,createContext} from 'react';
 import { type BoardData,type Task,type Column } from '../types/board';
 import { initialData } from '../data/mockData';
+import socket from '../socket';
 import { type SetStateAction,type Dispatch } from 'react';
 type BoardContextType = {
     boardData:BoardData;
@@ -33,6 +34,22 @@ export const BoardProvider:React.FC<{children:React.ReactNode}>=({children})=>{
             window.removeEventListener('offline',handleOffline);
         }
     },[]);
+
+    useEffect(()=>{
+        socket.on('boardData',(data:BoardData)=>{
+            console.log("Board data from the backend is : ",boardData);
+            setBoardData(data);
+        })
+
+        socket.on('connect',()=>console.log('Connected to socket server'));
+        socket.on('disconnect',()=>console.log('Disconnected from socket server'))
+
+        return ()=>{
+            socket.off('boardData');
+            socket.off('connect');
+            socket.off('disconnect');
+        }
+    },[])
 
     const addTask=(columnId:string,task:Task)=>{
         setBoardData((prev)=>{
