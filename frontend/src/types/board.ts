@@ -2,8 +2,8 @@ export type Task = {
   id: string;
   title: string;
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Column = {
