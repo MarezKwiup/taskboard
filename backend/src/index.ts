@@ -1,15 +1,19 @@
+import 'dotenv/config';
+
 import {createServer} from 'http';
 import express from 'express';
 import cors from 'cors';
 import {Server} from 'socket.io';
 import boardRoutes from './routes/board.routes.js';
-import { mockData } from './mockData.js';
+import taskRoutes from './routes/tasks.routes.js'
+import columnRoutes from './routes/column.routes.js'
+import { getBoard } from './controllers/board.controller.js'
 
 const app = express();
 
 const httpServer=createServer(app);
 
-const io = new Server(httpServer,{
+export const io = new Server(httpServer,{
     cors:{origin:'*'}
 })
 
@@ -17,11 +21,14 @@ app.use(cors());
 app.use(express.json())
 
 app.use('/api/board',boardRoutes);
+app.use('/api/tasks',taskRoutes);
+app.use('/api/column',columnRoutes);
 
-io.on('connection',(socket)=>{
+io.on('connection',async (socket)=>{
     console.log('Client connected: ',socket.id);
 
-    socket.emit('boardData',mockData);
+    const boardData=await getBoard();
+    socket.emit('boardData',boardData);
 
     socket.on('disconnect',()=>{
         console.log('Client disconnected: ',socket.id)

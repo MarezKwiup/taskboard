@@ -1,8 +1,13 @@
-export const mockData = {
+import {PrismaClient} from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+
+const frontendMock={
   tasks: {
     "task-1": {
       id: "task-1",
-      title: "Setup project",
+      title: "Setup project Please",
       description:
         "Initialize repository, configure TypeScript, and install dependencies.",
       createdAt: new Date().toISOString(),
@@ -10,7 +15,7 @@ export const mockData = {
     },
     "task-2": {
       id: "task-2",
-      title: "Design UI",
+      title: "Design UI Vardan",
       description:
         "Create wireframes and mockups for the dashboard and task board.",
       createdAt: new Date().toISOString(),
@@ -83,3 +88,50 @@ export const mockData = {
   },
   columnOrder: ["column-1", "column-2", "column-3"],
 };
+
+
+async function main(){
+    console.log('Seeding database...');
+
+    const board = await prisma.board.create({
+        data:{
+            title:'My taskboard',
+            columnOrder:frontendMock.columnOrder
+        }
+    });
+
+    for (const colId of frontendMock.columnOrder){
+        const col=frontendMock.columns[colId as keyof typeof frontendMock.columns];
+
+        await prisma.column.create({
+            data:{
+                id:col.id,
+                title:col.title,
+                boardId:board.id
+            }
+        })
+    }
+
+    for (const taskId in frontendMock.tasks){
+        const task = frontendMock.tasks[taskId as keyof typeof frontendMock.tasks];
+
+        const columnId = Object.keys(frontendMock.columns).find((colId)=>
+            frontendMock.columns[colId as keyof typeof frontendMock.columns].taskIds.includes(taskId)
+        )
+
+        await prisma.task.create({
+            data:{
+                id:task.id,
+                title:task.title,
+                description:task.description,
+                createdAt: new Date(task.createdAt),
+                updatedAt: new Date(task.updatedAt),
+                columnId
+            }
+        })
+    }
+
+    console.log("Database seeded successfully!");
+}
+
+main().catch((e)=>console.error(e)).finally(async ()=> await prisma.$disconnect());
