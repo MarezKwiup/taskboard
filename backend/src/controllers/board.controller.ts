@@ -19,12 +19,10 @@ export const getBoard = async () => {
   let columns: Record<string, Column> = {};
   let tasks: Record<string, Task> = {};
   for (let col of board.columns) {
-    let { id, title, tasks: colTasks } = col;
-    let taskIds: string[] = [];
+    let { id, title, tasks: colTasks,taskIds } = col;
 
     for (let task of colTasks) {
       let {id: taskId,title: taskTitle,description,createdAt,updatedAt} = task;
-      taskIds.push(taskId);
       tasks[taskId] = {
         id: taskId,
         title: taskTitle,
@@ -40,6 +38,10 @@ export const getBoard = async () => {
         taskIds:taskIds
     }
   }
+
+  const boardData={ columnOrder: board.columnOrder,tasks,columns };
+
+  // console.log("Board data : ",boardData.columns);
 
   return { columnOrder: board.columnOrder,tasks,columns };
 };

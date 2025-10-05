@@ -7,6 +7,10 @@ const prisma = new PrismaClient();
 
 export const deleteTask = async (req: Request, res: Response) => {
   const { id } = req.params;
+  console.log("Request body is : ",req.body);
+  const {updatedTaskIds} = req.body;
+
+  console.log("Updated task Ids ",updatedTaskIds);
   try {
     const deletedTask = await prisma.task.delete({
       where: {
@@ -16,7 +20,17 @@ export const deleteTask = async (req: Request, res: Response) => {
 
     console.log("Deleted task is : ", deletedTask);
 
+    const updatedCol = await prisma.column.update({
+      where:{
+        id:deletedTask.columnId
+      },
+      data:{
+        taskIds:updatedTaskIds
+      }
+    })
+
     const boardData = await getBoard();
+    
     io.emit("boardData", boardData);
     res.status(204).json({ message: "Task Deleted successfully" });
   } catch (err) {
@@ -28,7 +42,7 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 export const addTask = async (req: Request, res: Response) => {
   console.log("Req body is : ", req.body);
-  const { id, title, description, columnId, createdAt, updatedAt } = req.body;
+  const { id, title, description, columnId, createdAt, updatedAt,taskId } = req.body;
   try {
     const addedTask = await prisma.task.create({
       data: {
@@ -42,6 +56,17 @@ export const addTask = async (req: Request, res: Response) => {
     });
 
     console.log("Added task is : ", addedTask);
+
+    const updatedCol = await prisma.column.update({
+      where:{
+        id:columnId,
+      },
+      data:{
+        taskIds:taskId
+      }
+    })
+
+    console.log("Updated column is : ",updatedCol);
 
     const boardData = await getBoard();
     io.emit("boardData", boardData);
@@ -71,7 +96,11 @@ export const updateTask = async (req: Request, res: Response) => {
 
     console.log("Updated task is : ", updatedTask);
     const boardData = await getBoard();
+
+    console.log("Board data is : ",boardData);
     io.emit("boardData", boardData);
+
+    res.status(204).send();
 
   } catch (err) {
     //Server authoritative update
