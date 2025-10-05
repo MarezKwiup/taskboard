@@ -3,8 +3,10 @@ import { useBoard } from "../context/BoardContext";
 import { useSortable } from "@dnd-kit/sortable";
 import { type EditState } from "../types/task";
 import { CSS } from "@dnd-kit/utilities";
+import type { Task } from "../types/board";
 interface TaskProps {
   taskId: string;
+  task: Task
 }
 
 import { RxPencil1 } from "react-icons/rx";

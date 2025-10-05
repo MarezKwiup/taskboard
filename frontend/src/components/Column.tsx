@@ -10,6 +10,7 @@ import {
 import EditColumn from "./EditColumn";
 import AddTask from "./AddTask";
 import ECN from "./EditColumnName";
+import { useBoard } from "../context/BoardContext";
 
 interface ColumnProps {
   column: Column;
@@ -36,6 +37,7 @@ const ColumnCard = (props: ColumnProps) => {
   const [editModal, setEditModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const {boardData}=useBoard();
 
   const { setNodeRef } = useDroppable({
     id: column.id,
@@ -111,11 +113,11 @@ const ColumnCard = (props: ColumnProps) => {
         )}
         <div>
           <ul>
-            {column.taskIds.map((taskId) => (
-              <li key={taskId}>
-                <TaskCard key={taskId} taskId={taskId}></TaskCard>
-              </li>
-            ))}
+            {column.taskIds.map((taskId) => {
+              const task = boardData.tasks[taskId];
+              if (!task) return null;
+              return <TaskCard taskId={taskId} task={task} />;
+            })}
           </ul>
         </div>
         <div>

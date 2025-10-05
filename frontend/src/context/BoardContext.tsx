@@ -40,7 +40,6 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     socket.on("boardData", (data: BoardData) => {
-      console.log("Board data from the backend is : ", boardData);
       setBoardData(data);
     });
 
@@ -57,16 +56,15 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const addTask = async (columnId: string, task: Task) => {
+    const column = boardData.columns[columnId];
+    const updatedColumn: Column = {
+      ...column,
+      taskIds: [...column.taskIds, task.id],
+    };
     setBoardData((prev) => {
       const newTasks = {
         ...prev.tasks,
         [task.id]: task,
-      };
-
-      const column = prev.columns[columnId];
-      const updatedColumn: Column = {
-        ...column,
-        taskIds: [...column.taskIds, task.id],
       };
 
       return {
@@ -88,6 +86,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
         columnId: columnId,
+        taskId: updatedColumn.taskIds,
       }
     );
 
@@ -124,16 +123,21 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteTask = async (taskId: string) => {
+    const taskColId = Object.entries(boardData.columns).filter((col) => {
+      return col[1].taskIds.includes(taskId);
+    })[0][0];
+
+    const newColumns = Object.fromEntries(
+      Object.entries(boardData.columns).map(([colId, col]) => [
+        colId,
+        { ...col, taskIds: col.taskIds.filter((id) => id !== taskId) },
+      ])
+    );
+
+    const updatedTaskIds=newColumns[taskColId].taskIds
     setBoardData((prev) => {
       const newTasks = { ...prev.tasks };
       delete newTasks[taskId];
-
-      const newColumns = Object.fromEntries(
-        Object.entries(prev.columns).map(([colId, col]) => [
-          colId,
-          { ...col, taskIds: col.taskIds.filter((id) => id !== taskId) },
-        ])
-      );
 
       return {
         ...prev,
@@ -142,8 +146,11 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
       };
     });
     console.log("Backend url is : ", import.meta.env.VITE_BACKEND_URL);
-    const res = await axios.delete(
-      `${import.meta.env.VITE_BACKEND_URL}/api/tasks/${taskId}`
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/tasks/${taskId}`,
+      {
+        updatedTaskIds:updatedTaskIds,
+      }
     );
 
     console.log("Response after deletion is : ", res);
@@ -151,29 +158,37 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
 
   //Column methods
   const addColumn = async (column: Column) => {
+
+    console.log("New column id is : ",column.id);
+    const columnOrder = [...boardData.columnOrder, column.id];
     setBoardData((prev) => ({
       ...prev,
       columns: { ...prev.columns, [column.id]: column },
-      columnOrder: [...prev.columnOrder, column.id],
+      columnOrder: columnOrder,
     }));
+
+    console.log("Column order is : ",columnOrder);
 
     const res = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/column/`,
       {
         id: column.id,
         title: column.title,
+        columnOrder: columnOrder,
       }
     );
 
     console.log("Response from the backend is : ", res);
   };
 
-  const updateColumn = async (columnId: string, updatedColumn: Partial<Column>) => {
-
-    const newColumn={
+  const updateColumn = async (
+    columnId: string,
+    updatedColumn: Partial<Column>
+  ) => {
+    const newColumn = {
       ...boardData.columns[columnId],
-      ...updatedColumn
-    }
+      ...updatedColumn,
+    };
     setBoardData((prev) => ({
       ...prev,
       columns: {
@@ -190,9 +205,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     );
 
-    console.log("Response from the backend is : ",res);
-
-
+    console.log("Response from the backend is : ", res);
   };
 
   const rearrangeColumns = (newOrder: string[]) => {
@@ -203,6 +216,8 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteColumn = async (columnId: string) => {
+    const newOrder = boardData.columnOrder.filter((colId) => colId != columnId);
+
     setBoardData((prev) => {
       const col = prev.columns[columnId];
 
@@ -219,8 +234,6 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
         })
       );
 
-      const newOrder = prev.columnOrder.filter((colId) => colId != columnId);
-
       return {
         ...prev,
         tasks: newTasks,
@@ -229,11 +242,15 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
       };
     });
     console.log("Here to delete the column!!");
-    const res = await axios.delete(
-      `${import.meta.env.VITE_BACKEND_URL}/api/column/${columnId}`
+    console.log("Column order is : ", newOrder);
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/column/${columnId}`,
+      {
+        columnOrder: newOrder,
+      }
     );
 
-    console.log("Response from the backend is : ",res);
+    console.log("Response from the backend is : ", res);
   };
 
   return (
