@@ -30,8 +30,12 @@ io.on('connection',async (socket)=>{
     const boardData=await getBoard();
     socket.emit('boardData',boardData);
 
+    io.emit('activeUsersCount',io.engine.clientsCount);
+
     socket.on('disconnect',()=>{
         console.log('Client disconnected: ',socket.id)
+
+        io.emit('activeUsersCount',io.engine.clientsCount);
     })
 })
 
