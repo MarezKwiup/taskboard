@@ -30,7 +30,8 @@ const EditTask = ({
           };
       updateTask(taskId, partialTask);
       setEditState({
-        title: "",
+        title: editState.title,
+        description:editState.description
       });
       setIsEditing(false);
     }

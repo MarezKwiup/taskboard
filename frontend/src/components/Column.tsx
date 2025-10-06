@@ -74,7 +74,7 @@ const ColumnCard = (props: ColumnProps) => {
         ref={setNodeRef}
         className={`border ${
           colorClasses[index % colorClasses.length]
-        } border-l-5 border-y-[#DCDCE5] border-r-[#DCDCE5] rounded-2xl p-4 flex flex-col w-[25%] bg-[#FFFFFF]`}
+        } border-l-5 border-y-[#DCDCE5] border-r-[#DCDCE5] rounded-2xl p-4 flex flex-col min-h-130 min-w-[320px] bg-[#FFFFFF]`}
       >
         <div className="flex justify-between items-center">
           {!isEditing ? (

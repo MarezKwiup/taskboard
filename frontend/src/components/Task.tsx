@@ -17,8 +17,8 @@ const TaskCard = (props: TaskProps) => {
   const [showButtons, setShowButtons] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editState, setEditState] = useState<EditState>({
-    title: "",
-    description: "",
+    title: boardData.tasks[props.taskId].title,
+    description: boardData.tasks[props.taskId].description,
   });
 
   const { attributes, listeners, setNodeRef, transform, transition } =

@@ -9,7 +9,6 @@ import {
   rectIntersection,
   useSensor,
   useSensors,
-  pointerWithin,
 } from "@dnd-kit/core";
 import TaskCard from "./Task";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
@@ -185,7 +184,7 @@ const Board = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex overflow-x-auto h-full p-4 gap-4">
+        <div className="flex overflow-x-auto h-full p-4 gap-4 flex-nowrap">
           {boardData.columnOrder.map((columnId, index) => {
             const column = boardData.columns[columnId];
             if (!column) return null; // safeguard in case of missing column
