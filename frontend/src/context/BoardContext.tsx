@@ -42,6 +42,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     socket.on("boardData", (data: BoardData) => {
+      console.log("Board data from the backend is : ",data);
       setBoardData(data);
     });
 
