@@ -15,6 +15,7 @@ type BoardContextType = {
   updateColumn: (columnId: string, updatedColumn: Partial<Column>) => void;
   rearrangeColumns: (newOrder: string[]) => void;
   deleteColumn: (columnId: string) => void;
+  activeUsers: number
 };
 
 const BoardContext = createContext<BoardContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [online, setOnline] = useState<boolean>(navigator.onLine);
   const [boardData, setBoardData] = useState<BoardData>(initialData);
+  const [activeUsers,setActiveUsers] = useState<number>(0);
 
   useEffect(() => {
     const handleOnline = () => setOnline(true);
@@ -43,6 +45,10 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
       setBoardData(data);
     });
 
+    socket.on('activeUsersCount',(count:number)=>{
+      setActiveUsers(count);
+    })
+
     socket.on("connect", () => console.log("Connected to socket server"));
     socket.on("disconnect", () =>
       console.log("Disconnected from socket server")
@@ -50,10 +56,13 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       socket.off("boardData");
+      socket.off('activeUsersCount');
       socket.off("connect");
       socket.off("disconnect");
     };
   }, []);
+
+
 
   const addTask = async (columnId: string, task: Task) => {
     const column = boardData.columns[columnId];
@@ -266,6 +275,7 @@ export const BoardProvider: React.FC<{ children: React.ReactNode }> = ({
         updateColumn,
         rearrangeColumns,
         deleteColumn,
+        activeUsers
       }}
     >
       {children}

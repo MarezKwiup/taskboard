@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { Column } from "../types/board";
 
 const Header = () => {
-  const { online, boardData, addColumn } = useBoard();
+  const { online, boardData, addColumn,activeUsers } = useBoard();
   const tasksCount = Object.keys(boardData.tasks).length;
   const columnsCount = Object.keys(boardData.columns).length;
   const modalRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,7 @@ const Header = () => {
             </>
           )}
           <FiUsers color="#797986" size={20} className="ml-3 mt-0.5" />
-          <p className="ml-1">2 Online</p>
+          <p className="ml-1">{activeUsers} Online</p>
         </div>
       </div>
       <div className="flex pt-2 mt-2">

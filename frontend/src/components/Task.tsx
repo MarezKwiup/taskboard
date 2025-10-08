@@ -64,7 +64,7 @@ const TaskCard = (props: TaskProps) => {
         )}
       </div>
 
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="cursor-pointer">
         <p className="text-sm text-[#7c7c80] pt-3">{task.description}</p>
         <p className="pt-2 text-sm text-[#7c7c80]">
           Updated{" "}
