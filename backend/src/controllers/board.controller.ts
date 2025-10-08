@@ -41,7 +41,7 @@ export const getBoard = async () => {
 
   const boardData={ columnOrder: board.columnOrder,tasks,columns };
 
-  // console.log("Board data : ",boardData.columns);
+  console.log("Board data : ",boardData);
 
   return { columnOrder: board.columnOrder,tasks,columns };
 };
